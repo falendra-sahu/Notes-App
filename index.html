@@ -126,6 +126,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
         import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCu3slAv0AhfFpf7RB7NtcwjjdnpUL2EcI",
@@ -137,27 +138,33 @@
             measurementId: "G-DFN1TGW9F1"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
         async function loadNotes() {
-            const notesCol = collection(db, 'notes');
-            const notesSnapshot = await getDocs(notesCol);
-            const notesList = document.getElementById('notesList');
-            notesList.innerHTML = '';
-            notesSnapshot.forEach((doc, index) => {
-                const note = doc.data();
-                const noteItem = document.createElement('li');
-                noteItem.className = 'note';
-                noteItem.dataset.id = doc.id;
-                noteItem.innerHTML = `
-                    <p class="note-title">${note.title}</p>
-                    <p class="note-date">${note.date}</p>
-                    <p>${note.content}</p>
-                    <button onclick="confirmDeleteNote('${doc.id}')">Delete</button>
-                `;
-                notesList.appendChild(noteItem);
-            });
+            try {
+                const notesCol = collection(db, 'notes');
+                const notesSnapshot = await getDocs(notesCol);
+                const notesList = document.getElementById('notesList');
+                notesList.innerHTML = '';
+                notesSnapshot.forEach((doc) => {
+                    const note = doc.data();
+                    const noteItem = document.createElement('li');
+                    noteItem.className = 'note';
+                    noteItem.dataset.id = doc.id;
+                    noteItem.innerHTML = `
+                        <p class="note-title">${note.title}</p>
+                        <p class="note-date">${note.date}</p>
+                        <p>${note.content}</p>
+                        <button onclick="confirmDeleteNote('${doc.id}')">Delete</button>
+                    `;
+                    notesList.appendChild(noteItem);
+                });
+            } catch (error) {
+                console.error('Error loading notes: ', error);
+            }
         }
 
         async function addNote() {
@@ -167,22 +174,31 @@
             const noteContent = noteContentInput.value.trim();
             const currentDate = new Date().toLocaleString();
             if (noteTitle !== '' && noteContent !== '') {
-                await addDoc(collection(db, 'notes'), {
-                    title: noteTitle,
-                    content: noteContent,
-                    date: currentDate
-                });
-                noteTitleInput.value = '';
-                noteContentInput.value = '';
-                loadNotes();
-                document.getElementById('notesList').scrollIntoView({ behavior: 'smooth' });
+                try {
+                    await addDoc(collection(db, 'notes'), {
+                        title: noteTitle,
+                        content: noteContent,
+                        date: currentDate
+                    });
+                    noteTitleInput.value = '';
+                    noteContentInput.value = '';
+                    loadNotes();
+                    document.getElementById('notesList').scrollIntoView({ behavior: 'smooth' });
+                } catch (error) {
+                    console.error('Error adding note: ', error);
+                    alert('Failed to add note. Check the console for details.');
+                }
             }
         }
 
         async function confirmDeleteNote(id) {
             if (confirm('Are you sure you want to delete this note?')) {
-                await deleteDoc(doc(db, 'notes', id));
-                loadNotes();
+                try {
+                    await deleteDoc(doc(db, 'notes', id));
+                    loadNotes();
+                } catch (error) {
+                    console.error('Error deleting note: ', error);
+                }
             }
         }
 
@@ -193,12 +209,16 @@
         }
 
         async function clearNotes() {
-            const notesCol = collection(db, 'notes');
-            const notesSnapshot = await getDocs(notesCol);
-            notesSnapshot.forEach(async (doc) => {
-                await deleteDoc(doc.ref);
-            });
-            loadNotes();
+            try {
+                const notesCol = collection(db, 'notes');
+                const notesSnapshot = await getDocs(notesCol);
+                notesSnapshot.forEach(async (doc) => {
+                    await deleteDoc(doc.ref);
+                });
+                loadNotes();
+            } catch (error) {
+                console.error('Error clearing notes: ', error);
+            }
         }
 
         function searchNotes() {
