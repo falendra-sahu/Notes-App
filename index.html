@@ -3,262 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notes App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Cloud Notes</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f7fa;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: #f4f4f4;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .container {
-            width: 100%;
-            max-width: 600px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-        .input-group {
-            margin-bottom: 15px;
-        }
-        input, textarea {
-            width: 100%;
+        #noteInput, #noteTitle {
+            width: calc(100% - 12px);
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border 0.3s;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
         }
-        input:focus, textarea:focus {
-            border: 1px solid #66afe9;
-            outline: none;
-        }
-        button {
-            background-color: #66afe9;
+        #addNote {
+            padding: 10px 15px;
+            background-color: #5cb85c;
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background 0.3s;
-            font-weight: 600;
-            margin-right: 10px;
+            margin-top: 10px;
         }
-        button:hover {
-            background-color: #5ca6db;
+        #searchInput {
+            padding: 10px;
+            width: calc(100% - 12px);
         }
-        .notes {
+        #noteList {
             margin-top: 20px;
         }
         .note {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .note h3 {
-            margin: 0 0 10px;
-            color: #333;
-        }
-        .note p {
-            margin: 0 0 10px;
-            color: #555;
-        }
-        small {
-            color: #888;
-        }
-        #search {
-            margin-bottom: 10px;
-        }
-        #confirmDelete, #confirmDeleteAll {
-            display: none;
-            margin: 10px 0;
+            background-color: #fff;
             padding: 10px;
-            background: #ffcdcd;
-            border: 1px solid #ff0000;
-            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .note button {
+            margin-left: 5px;
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: #999;
         }
     </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCu3slAv0AhfFpf7RB7NtcwjjdnpUL2EcI",
+            authDomain: "notes-app-427ce.firebaseapp.com",
+            projectId: "notes-app-427ce",
+            storageBucket: "notes-app-427ce.appspot.com",
+            messagingSenderId: "850682221877",
+            appId: "1:850682221877:web:8cb65fb6c45eb29308a87c",
+            measurementId: "G-DFN1TGW9F1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const noteTitle = document.getElementById('noteTitle');
+            const noteInput = document.getElementById('noteInput');
+            const noteList = document.getElementById('noteList');
+            const searchInput = document.getElementById('searchInput');
+
+            document.getElementById('addNote').addEventListener('click', async () => {
+                const titleText = noteTitle.value;
+                const noteText = noteInput.value;
+                if (titleText && noteText) {
+                    await addDoc(collection(db, 'notes'), {
+                        title: titleText,
+                        text: noteText,
+                        timestamp: Date.now()
+                    });
+                    noteTitle.value = '';
+                    noteInput.value = '';
+                    loadNotes();
+                }
+            });
+
+            const loadNotes = async () => {
+                noteList.innerHTML = '';
+                const querySnapshot = await getDocs(collection(db, 'notes'));
+                const notes = [];
+                
+                querySnapshot.forEach(doc => {
+                    notes.push({ id: doc.id, ...doc.data() });
+                });
+
+                notes.sort((a, b) => b.timestamp - a.timestamp);
+
+                notes.forEach(({ id, title, text, timestamp }) => {
+                    const noteDiv = document.createElement('div');
+                    noteDiv.classList.add('note');
+
+                    // Formatting timestamp to AM/PM
+                    const date = new Date(timestamp);
+                    const options = { 
+                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit', hour12: true 
+                    };
+                    const formattedDate = date.toLocaleString('en-US', options);
+                    
+                    noteDiv.innerHTML = `
+                        <strong>${title}</strong><br>
+                        ${text}<br>
+                        <span class="timestamp">Saved on: ${formattedDate}</span>
+                        <div>
+                            <button onclick="editNote('${id}', '${title}', '${text}')">Edit</button>
+                            <button onclick="deleteNote('${id}')">Delete</button>
+                            <button onclick="downloadNote('${title}', '${text}')">Download</button>
+                        </div>
+                    `;
+                    noteList.appendChild(noteDiv);
+                });
+            };
+
+            window.deleteNote = async (id) => {
+                await deleteDoc(doc(db, 'notes', id));
+                loadNotes();
+            };
+
+            window.editNote = async (id, currentTitle, currentText) => {
+                const newTitle = prompt('Edit your note title:', currentTitle);
+                const newText = prompt('Edit your note:', currentText);
+                if (newTitle !== null && newText !== null) {
+                    await updateDoc(doc(db, 'notes', id), { title: newTitle, text: newText });
+                    loadNotes();
+                }
+            };
+
+            window.downloadNote = (title, text) => {
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${title}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            document.getElementById('searchInput').addEventListener('keyup', (e) => {
+                const filter = e.target.value.toLowerCase();
+                const notes = noteList.childNodes;
+                notes.forEach(note => {
+                    const title = note.querySelector('strong').textContent.toLowerCase();
+                    const text = note.textContent.toLowerCase();
+                    note.style.display = title.includes(filter) || text.includes(filter) ? 'block' : 'none';
+                });
+            });
+
+            document.getElementById('clearSearch').addEventListener('click', () => {
+                searchInput.value = '';
+                loadNotes();
+            });
+
+            document.getElementById('deleteAll').addEventListener('click', async () => {
+                const querySnapshot = await getDocs(collection(db, 'notes'));
+                querySnapshot.forEach(async doc => {
+                    await deleteDoc(doc.ref);
+                });
+                loadNotes();
+            });
+
+            loadNotes();
+        });
+    </script>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Notes App</h1>
-        <div class="input-group">
-            <input type="text" id="title" placeholder="Note Title">
-        </div>
-        <div class="input-group">
-            <textarea id="content" placeholder="Write your note here..." rows="4"></textarea>
-        </div>
-        <div class="input-group">
-            <button onclick="addNote()">Add Note</button>
-            <button onclick="clearInputs()">Clear Inputs</button>
-            <button onclick="confirmDeleteAll()">Delete All Notes</button>
-        </div>
-        <input type="text" id="search" placeholder="Search notes..." onkeyup="searchNotes()">
-        <div id="confirmDelete" class="confirmation-box"></div>
-        <div id="confirmDeleteAll" class="confirmation-box"></div>
-        <div class="notes" id="notesContainer"></div>
-    </div>
+    <h1>Cloud Notes</h1>
+    <input type="text" id="noteTitle" placeholder="Note Title...">
+    <input type="text" id="noteInput" placeholder="Type your note here...">
+    <button id="addNote">Add Note</button>
+    
+    <input type="text" id="searchInput" placeholder="Search notes...">
+    <button id="clearSearch">Clear Search</button>
+    <button id="deleteAll">Delete All Notes</button>
 
-    <script>
-        let notes = [];
-        let editingIndex = -1; 
-        let noteToDelete = -1;
-
-        function showAlert(message, type) {
-            const alertBox = document.getElementById(type);
-            alertBox.textContent = message;
-            alertBox.style.display = 'block';
-            setTimeout(() => {
-                alertBox.style.display = 'none';
-            }, 3000);
-        }
-
-        function addNote() {
-            const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
-            if (title && content) {
-                const timestamp = new Date().toLocaleString();
-                if (editingIndex === -1) {
-                    notes.unshift({ title, content, timestamp });
-                } else {
-                    notes[editingIndex] = { title, content, timestamp };
-                    editingIndex = -1;
-                }
-                renderNotes();
-                clearInputs();
-            } else {
-                showAlert('Please enter both title and content.', 'confirmDelete');
-            }
-        }
-
-        function renderNotes() {
-            const container = document.getElementById('notesContainer');
-            container.innerHTML = '';
-            notes.forEach((note, index) => {
-                const noteDiv = document.createElement('div');
-                noteDiv.className = 'note';
-                noteDiv.innerHTML = `
-                    <h3>${note.title}</h3>
-                    <p>${note.content}</p>
-                    <p><small>Last Updated: ${note.timestamp}</small></p>
-                    <button onclick="editNote(${index})">Edit</button>
-                    <button onclick="confirmDelete(${index})">Delete</button>
-                    <button onclick="downloadNote(${index})">Download</button>
-                `;
-                container.appendChild(noteDiv);
-            });
-        }
-
-        function editNote(index) {
-            const note = notes[index];
-            document.getElementById('title').value = note.title;
-            document.getElementById('content').value = note.content;
-            editingIndex = index;
-        }
-
-        function confirmDelete(index) {
-            noteToDelete = index;
-            const confirmBox = document.getElementById('confirmDelete');
-            confirmBox.style.display = 'block';
-            confirmBox.innerHTML = `
-                Are you sure you want to delete this note?
-                <button onclick="deleteNote()">Yes</button>
-                <button onclick="cancelDelete()">No</button>
-            `;
-        }
-
-        function deleteNote() {
-            if (noteToDelete > -1) {
-                notes.splice(noteToDelete, 1);
-                renderNotes();
-                showAlert('Note deleted successfully!', 'confirmDelete');
-                noteToDelete = -1; 
-                document.getElementById('confirmDelete').style.display = 'none';
-            }
-        }
-
-        function cancelDelete() {
-            noteToDelete = -1; 
-            document.getElementById('confirmDelete').style.display = 'none';
-        }
-
-        function confirmDeleteAll() {
-            const confirmBoxAll = document.getElementById('confirmDeleteAll');
-            confirmBoxAll.style.display = 'block';
-            confirmBoxAll.innerHTML = `
-                Are you sure you want to delete all notes?
-                <button onclick="deleteAllNotes()">Yes</button>
-                <button onclick="cancelDeleteAll()">No</button>
-            `;
-        }
-
-        function deleteAllNotes() {
-            notes = [];
-            renderNotes();
-            showAlert('All notes deleted successfully!', 'confirmDeleteAll');
-            document.getElementById('confirmDeleteAll').style.display = 'none';
-        }
-
-        function cancelDeleteAll() {
-            document.getElementById('confirmDeleteAll').style.display = 'none';
-        }
-
-        function clearInputs() {
-            document.getElementById('title').value = '';
-            document.getElementById('content').value = '';
-            document.getElementById('search').value = '';
-            editingIndex = -1; 
-            renderNotes(); 
-        }
-
-        function searchNotes() {
-            const searchTerm = document.getElementById('search').value.toLowerCase();
-            const filteredNotes = notes.filter(note => 
-                note.title.toLowerCase().includes(searchTerm) || 
-                note.content.toLowerCase().includes(searchTerm)
-            );
-            const container = document.getElementById('notesContainer');
-            container.innerHTML = '';
-            filteredNotes.forEach((note, index) => {
-                const noteDiv = document.createElement('div');
-                noteDiv.className = 'note';
-                noteDiv.innerHTML = `
-                    <h3>${note.title}</h3>
-                    <p>${note.content}</p>
-                    <p><small>Last Updated: ${note.timestamp}</small></p>
-                    <button onclick="editNote(${notes.indexOf(note)})">Edit</button>
-                    <button onclick="confirmDelete(${notes.indexOf(note)})">Delete</button>
-                    <button onclick="downloadNote(${notes.indexOf(note)})">Download</button>
-                `;
-                container.appendChild(noteDiv);
-            });
-        }
-
-        function downloadNote(index) {
-            const note = notes[index];
-            const formattedContent = `Title: ${note.title}\n\nContent:\n${note.content.replace(/\n/g, '\r\n')}`;
-            const blob = new Blob([formattedContent], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${note.title}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-    </script>
+    <div id="noteList"></div>
 
 </body>
 </html>
