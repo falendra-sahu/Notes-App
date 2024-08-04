@@ -227,7 +227,7 @@
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -256,10 +256,8 @@
 
         let notes = [];
 
-        async function renderNotes() {
+        function renderNotes() {
             notesList.innerHTML = '';
-            const querySnapshot = await getDocs(collection(db, "notes"));
-            notes = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
             const sortedNotes = notes.sort((a, b) => {
                 if (a.pinned === b.pinned) {
@@ -268,7 +266,7 @@
                 return b.pinned ? 1 : -1;
             });
 
-            sortedNotes.forEach((note, index) => {
+            sortedNotes.forEach((note) => {
                 const li = document.createElement('li');
                 li.className = `note-item ${note.pinned ? 'pinned' : ''}`;
                 li.innerHTML = `
@@ -309,13 +307,11 @@
                 await addDoc(collection(db, "notes"), newNote);
                 noteTitle.value = '';
                 noteInput.value = '';
-                renderNotes();
             }
         }
 
         async function deleteNote(id) {
             await deleteDoc(doc(db, "notes", id));
-            renderNotes();
         }
 
         async function editNote(id) {
@@ -323,7 +319,6 @@
             noteTitle.value = note.title;
             noteInput.value = note.content;
             await deleteDoc(doc(db, "notes", id));
-            renderNotes();
         }
 
         function downloadNote(id) {
@@ -347,7 +342,6 @@
             await updateDoc(doc(db, "notes", id), {
                 pinned: !note.pinned
             });
-            renderNotes();
         }
 
         function escapeHtml(unsafe) {
@@ -399,7 +393,11 @@
             }
         }
 
-        renderNotes();
+        // Set up real-time listener
+        onSnapshot(collection(db, "notes"), (snapshot) => {
+            notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderNotes();
+        });
     </script>
 </body>
 </html>
