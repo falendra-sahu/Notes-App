@@ -15,6 +15,7 @@
         body {
             background-color: #f0f0f0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -27,6 +28,7 @@
             width: 100%;
             max-width: 1000px;
             padding: 30px;
+            margin-bottom: 20px;
         }
         h1 {
             text-align: center;
@@ -174,6 +176,20 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
         @media (max-width: 768px) {
             .note-item {
                 width: calc(50% - 10px);
@@ -203,6 +219,9 @@
             <p id="modal-content"></p>
         </div>
     </div>
+    <footer>
+        Powered by <a href="#">Falendra Sahu ❤️</a>
+    </footer>
 
     <script type="module">
         // Import the functions you need from the SDKs you need
