@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Notes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Notes App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -68,8 +68,8 @@
             border-radius: 10px;
             font-size: 1rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-			border-left: 1px solid blue;
-			border-right: 1px solid blue;
+            border-left: 1px solid blue;
+            border-right: 1px solid blue;
         }
 
         #category-filter {
@@ -91,8 +91,8 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
-			border-left: 1px solid blue;
-			border-right: 1px solid blue;
+            border-left: 1px solid blue;
+            border-right: 1px solid blue;
         }
 
         .note-card:hover {
@@ -311,6 +311,24 @@
             overflow-y: auto;
         }
 
+        footer {
+            margin-top: 1px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
             .search-container {
                 flex-direction: column;
@@ -329,7 +347,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>My Notes</h1>
+            <h1>Notes App</h1>
         </header>
 
         <div class="search-container">
@@ -377,6 +395,10 @@
             <button id="cancel-delete">No</button>
         </div>
     </div>
+
+    <footer>
+        Powered by <a href="#">Falendra Sahu ❤️</a>
+    </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
