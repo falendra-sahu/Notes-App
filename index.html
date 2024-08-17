@@ -1,937 +1,975 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <base href="https://notes-app-427ce.web.app/">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Notes App</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #4CAF50;
-            --heading-color: #ffffff;
-            --secondary-color: #45a049;
-            --background-color: #f0f0f0;
-            --card-color: #ffffff;
-            --container-color: #000000;
-            --text-color: #333333;
-            --accent-color: #A9A9A9;
-            --note-actions: #000000;
-            --pinned-color: #fffacd;
-        }
+<html><head><base href="https://notes-app-427ce.web.app/"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Notes App</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><style>
+:root {
+    --primary-color: #4CAF50;
+    --heading-color: #ffffff;
+    --secondary-color: #45a049;
+    --background-color: #f0f0f0;
+    --card-color: #ffffff;
+    --container-color: #000000;
+    --text-color: #333333;
+    --accent-color: #A9A9A9;
+    --note-actions: #000000;
+    --pinned-color: #fffacd;
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            flex-grow: 1;
-            background-color: #FCFBF4;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    flex-grow: 1;
+    background-color: #FCFBF4;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
 
-        header {
-            padding: 20px 0;
-            text-align: center;
-        }
+header {
+    padding: 20px 0;
+    text-align: center;
+}
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #000000;
-        }
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #000000;
+}
 
-        .search-container {
-            display: flex;
-            margin-bottom: 20px;
-            gap: 10px;
-        }
+.search-container {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 10px;
+}
 
-        #search-input, #category-filter {
-            flex-grow: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-left: 1px solid blue;
-            border-right: 1px solid blue;
-        }
+#search-input, #category-filter {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-left: 1px solid blue;
+    border-right: 1px solid blue;
+}
 
-        #category-filter {
-            max-width: 200px;
-        }
+#category-filter {
+    max-width: 200px;
+}
 
-        .notes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
 
-        .note-card {
-            background-color: #fafafa;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            border-left: 1px solid blue;
-            border-right: 1px solid blue;
-        }
+.note-card {
+   	background-image: linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border-left: 1px solid blue;
+    border-right: 1px solid blue;
+}
 
-        .note-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
+.note-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
 
-        .note-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #000000;
-        }
+.note-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #000000;
+}
 
-        .note-content {
-            font-size: 0.9rem;
-            color: var(--text-color);
-            margin-bottom: 15px;
-            max-height: 100px;
-            overflow: hidden;
-        }
+.note-content {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    max-height: 100px;
+    overflow: hidden;
+}
 
-        .note-category {
-            font-size: 0.8rem;
-            color: var(--accent-color);
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
+.note-category {
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
 
-        .note-date {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 10px;
-        }
+.note-date {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 10px;
+}
 
-        .note-actions {
-            display: none;
-            justify-content: flex-end;
-            gap: 10px;
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-        }
+.note-actions {
+    display: none;
+    justify-content: flex-end;
+    gap: 10px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
 
-        .note-card:hover .note-actions {
-            display: flex;
-        }
+.note-card:hover .note-actions {
+    display: flex;
+}
 
-        .note-actions button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            color: var(--note-actions);
-            transition: color 0.3s ease;
-        }
+.note-actions button {
+	margin: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--note-actions);
+    transition: color 0.3s ease;
+}
 
-        .note-actions button:hover {
-            color: var(--accent-color);
-        }
+.note-actions button:hover {
+    color: #A020F0;
+}
 
-        .floating-button {
-            position: fixed;
-            bottom: 30px;
-            right: 170px;
-            background-color: var(--accent-color);
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
+.floating-button {
+    position: fixed;
+    bottom: 30px;
+    right: 170px;
+    background-image: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
-        .floating-button:hover {
-            background-color: #501c78;
-            transform: scale(1.1);
-        }
+.floating-button:hover {
+    background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
+    transform: scale(1.1);
+}
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            overflow-y: auto;
-        }
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+}
 
-        .modal-content {
-            background-color: var(--card-color);
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
+.modal-content {
+    background-color: var(--card-color);
+	position: fixed, center;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 95vh;
+    overflow-y: auto;
+}
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        .close:hover,
-        .close:focus {
-            color: #000;
-            text-decoration: none;
-        }
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+}
 
-        .modal-title {
-            margin-bottom: 20px;
-            color: var(--primary-color);
-        }
+.modal-title {
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
 
-        .modal input,
-        .modal textarea,
-        .modal select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
+.modal input,
+.modal textarea,
+.modal select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
 
-        .modal textarea {
-            min-height: 200px;
-            resize: vertical;
-        }
+.modal textarea {
+    min-height: 200px;
+    resize: vertical;
+}
 
-        .modal button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
+.modal button {
+    background-color: #000000;
+	font-weight: bold;
+    color: white;
+    border: none;
+	height: 35px;
+	width: 90px;
+	text-align: center
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
 
-        .modal button:hover {
-            background-color: var(--secondary-color);
-        }
+.modal button:hover {
+    background-color: #A020F0;
+}
 
-        .confirmation-dialog {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
+.confirmation-dialog {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
 
-        .confirmation-content {
-            background-color: var(--card-color);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            width: 300px;
-        }
+.confirmation-content {
+    background-color: var(--card-color);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+}
 
-        .confirmation-content button {
-            margin: 10px 5px;
-        }
+.confirmation-content button {
+    margin: 10px 10px;
+	padding: 5px;
+	background-color: #000000;
+	color: #ffffff;
+	width: 50px;
+	font-weight: bold;
+	border-radius: 5px;
+	border: none;
+}
+.confirmation-content button:hover {
+	background-color: #A020F0;
+	
+}
+.pinned {
+    background-image: linear-gradient(-225deg, #69EACB 0%, #EACCF8 48%, #6654F1 100%);
+}
 
-        .pinned {
-            background-color: var(--pinned-color);
-        }
+.pin-button {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.0rem;
+    color: #000000;
+    transition: color 0.3s ease;
+    display: none;
+}
 
-        .pin-button {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.0rem;
-            color: #edc71c;
-            transition: color 0.3s ease;
-            display: none;
-        }
+.note-card:hover .pin-button {
+    display: block;
+}
 
-        .note-card:hover .pin-button {
-            display: block;
-        }
+.pin-button:hover,
+.pin-button.pinned {
+    color: #A020F0;
+}
 
-        .pin-button:hover,
-        .pin-button.pinned {
-            color: var(--accent-color);
-        }
+#view-note-content {
+    white-space: pre-wrap;
+    max-height: 60vh;
+    overflow-y: auto;
+}
 
-        #view-note-content {
-            white-space: pre-wrap;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
+footer {
+    margin-top: 1px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    padding: 10px 0;
+}
 
-        footer {
-            margin-top: 1px;
-            font-size: 14px;
-            color: #666;
-            text-align: center;
-            padding: 10px 0;
-        }
+footer a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
 
-        footer a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-        }
+footer a:hover {
+    text-decoration: underline;
+}
 
-        footer a:hover {
-            text-decoration: underline;
-        }
+.note-count {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    color: var(--accent-color);
+}
 
-        .note-count {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-            color: var(--accent-color);
-        }
+.format-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
 
-        .format-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+.format-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
 
-        .format-button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease;
-        }
+.format-button:hover {
+    background-color: var(--secondary-color);
+}
 
-        .format-button:hover {
-            background-color: var(--secondary-color);
-        }
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
 
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
+.checkbox-container input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
 
-        .checkbox-container input[type="checkbox"] {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--primary-color);
-            border-radius: 50%;
-            outline: none;
-            cursor: pointer;
-            margin-right: 10px;
-            transition: all 0.3s ease;
-        }
+.checkbox-container input[type="checkbox"]:checked {
+    background-color: var(--primary-color);
+    color: white;
+}
 
-        .checkbox-container input[type="checkbox"]:checked {
-            background-color: var(--primary-color);
-            color: white;
-        }
+.checkbox-container input[type="checkbox"]:checked::after {
+    content: '\2713';
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    height: 100%;
+}
 
-        .checkbox-container input[type="checkbox"]:checked::after {
-            content: '\2713';
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 14px;
-            height: 100%;
-        }
+#view-note-content ul {
+    list-style-type: none;
+    padding-left: 20px;
+}
 
-        #view-note-content ul {
-            list-style-type: none;
-            padding-left: 20px;
-        }
+#view-note-content li {
+    margin-bottom: 5px;
+    display: flex;
+    align-items: flex-start;
+}
 
-        #view-note-content li {
-            margin-bottom: 5px;
-            display: flex;
-            align-items: flex-start;
-        }
+#view-note-content li::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
 
-        #view-note-content li::before {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
+#view-note-content li.checkbox::before {
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
 
-        #view-note-content li.checkbox::before {
-            border: 2px solid var(--primary-color);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
+#view-note-content li.checkbox.checked::before {
+    background-color: var(--primary-color);
+    content: '\2713';
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+}
 
-        #view-note-content li.checkbox.checked::before {
-            background-color: var(--primary-color);
-            content: '\2713';
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 14px;
-        }
+#view-note-content li.number::before {
+    content: counter(list-counter) '.';
+    counter-increment: list-counter;
+}
 
-        #view-note-content li.number::before {
-            content: counter(list-counter) '.';
-            counter-increment: list-counter;
-        }
+#view-note-content li.bullet::before {
+    content: '•';
+}
 
-        #view-note-content li.bullet::before {
-            content: '•';
-        }
+#view-note-content li.checked {
+    text-decoration: line-through;
+}
 
-        #view-note-content li.checked {
-            text-decoration: line-through;
-        }
+.editable-category {
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+}
 
-        .editable-category {
-            cursor: pointer;
-            padding: 2px 5px;
-            border-radius: 3px;
-            transition: background-color 0.3s ease;
-        }
+.editable-category:hover {
+    background-color: #f0f0f0;
+}
 
-        .editable-category:hover {
-            background-color: #f0f0f0;
-        }
+.category-edit-input {
+    font-size: 0.8rem;
+    padding: 2px 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    width: auto;
+}
 
-        .category-edit-input {
-            font-size: 0.8rem;
-            padding: 2px 5px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            width: auto;
-        }
+@media (max-width: 768px) {
+    .search-container {
+        flex-direction: column;
+    }
 
-        @media (max-width: 768px) {
-            .search-container {
-                flex-direction: column;
+    #category-filter {
+        max-width: 100%;
+    }
+
+    .notes-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .note-card {
+        padding: 15px;
+    }
+
+    .note-title {
+        font-size: 1rem;
+    }
+
+    .note-content {
+        font-size: 0.8rem;
+        max-height: 80px;
+    }
+
+    .note-category {
+        font-size: 0.7rem;
+    }
+
+    .note-date {
+        font-size: 0.7rem;
+    }
+
+    .note-actions button {
+        font-size: 0.9rem;
+    }
+
+    .floating-button {
+        right: 20px;
+        bottom: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .note-card {
+        padding: 10px;
+    }
+
+    .note-title {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+
+    .note-content {
+        font-size: 0.75rem;
+        max-height: 60px;
+        margin-bottom: 10px;
+    }
+
+    .note-category {
+        font-size: 0.6rem;
+        top: 5px;
+        right: 5px;
+        padding: 1px 5px;
+    }
+
+    .note-date {
+        font-size: 0.6rem;
+        margin-top: 5px;
+    }
+
+    .note-actions button {
+        font-size: 0.8rem;
+    }
+
+    .pin-button {
+        font-size: 0.8rem;
+        top: 5px;
+        left: 5px;
+    }
+
+    .floating-button {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .format-buttons {
+        flex-wrap: wrap;
+    }
+
+    .format-button {
+        font-size: 0.8rem;
+        padding: 3px 8px;
+    }
+}
+</style></head><body><div class="container"><header><h1>Notes App</h1></header><div class="search-container"><input type="text" id="search-input" placeholder="Search notes..."><select id="category-filter"><option value="">All Categories</option></select></div><div class="note-count" id="note-count"></div><div class="notes-grid" id="notes-grid"></div></div><div class="floating-button" id="add-note-btn"><i class="fas fa-plus"></i></div><div id="note-modal" class="modal"><div class="modal-content"><span class="close">&times;</span><h2 class="modal-title">Add New Note</h2><input type="text" id="note-title" placeholder="Note Title"><div class="format-buttons"><button class="format-button" id="add-checkbox">Checkbox</button><button class="format-button" id="add-number">Number</button><button class="format-button" id="add-bullet">Bullet</button></div><textarea id="note-content" placeholder="Note Content"></textarea><input type="text" id="note-category" placeholder="Category (optional)"><select id="existing-categories"><option value="">Select Existing Category</option></select><button id="save-note">Save Note</button></div></div><div id="view-note-modal" class="modal"><div class="modal-content"><span class="close">&times;</span><h2 id="view-note-title" class="modal-title"></h2><div id="view-note-content"></div><p id="view-note-date"></p><p id="view-note-category"></p></div></div><div id="confirmation-dialog" class="confirmation-dialog"><div class="confirmation-content"><h3>Are you sure you want to delete this note?</h3><button id="confirm-delete">Yes</button><button id="cancel-delete">No</button></div></div><footer>Powered by <a href="https://github.com/falendrasahu">Falendra Sahu ❤️</a></footer><script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCu3slAv0AhfFpf7RB7NtcwjjdnpUL2EcI",
+    authDomain: "notes-app-427ce.firebaseapp.com",
+    projectId: "notes-app-427ce",
+    storageBucket: "notes-app-427ce.appspot.com",
+    messagingSenderId: "850682221877",
+    appId: "1:850682221877:web:8cb65fb6c45eb29308a87c",
+    measurementId: "G-DFN1TGW9F1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let notes = [];
+let categories = new Set();
+let noteToDelete = null;
+
+const notesGrid = document.getElementById('notes-grid');
+const addNoteBtn = document.getElementById('add-note-btn');
+const noteModal = document.getElementById('note-modal');
+const viewNoteModal = document.getElementById('view-note-modal');
+const confirmationDialog = document.getElementById('confirmation-dialog');
+const closeModals = document.querySelectorAll('.close');
+const saveNoteBtn = document.getElementById('save-note');
+const searchInput = document.getElementById('search-input');
+const categoryFilter = document.getElementById('category-filter');
+const existingCategories = document.getElementById('existing-categories');
+const noteCount = document.getElementById('note-count');
+const addCheckboxBtn = document.getElementById('add-checkbox');
+const addNumberBtn = document.getElementById('add-number');
+const addBulletBtn = document.getElementById('add-bullet');
+
+function renderNotes(filteredNotes = notes) {
+    notesGrid.innerHTML = '';
+    const sortedNotes = filteredNotes.sort((a, b) => {
+        if (a.pinned === b.pinned) {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        return b.pinned ? 1 : -1;
+    });
+
+    sortedNotes.forEach(note => {
+        const noteCard = document.createElement('div');
+        noteCard.className = `note-card ${note.pinned ? 'pinned' : ''}`;
+        noteCard.innerHTML = `
+            <button class="pin-button ${note.pinned ? 'pinned' : ''}" data-id="${note.id}">
+                <i class="fas fa-thumbtack"></i>
+            </button>
+            <div class="note-category editable-category" data-id="${note.id}">${note.category || 'Uncategorized'}</div>
+            <h3 class="note-title">${escapeHtml(note.title)}</h3>
+            <p class="note-content">${formatNoteContent(note.content.substring(0, 100))}${note.content.length > 100 ? '...' : ''}</p>
+            <p class="note-date">${formatDate(note.createdAt)}</p>
+            <div class="note-actions">
+                <button class="edit-note" data-id="${note.id}"><i class="fas fa-edit"></i></button>
+                <button class="delete-note" data-id="${note.id}"><i class="fas fa-trash-alt"></i></button>
+                <button class="download-note" data-id="${note.id}"><i class="fas fa-download"></i></button>
+            </div>
+        `;
+        notesGrid.appendChild(noteCard);
+
+        noteCard.addEventListener('click', (e) => {
+            if (!e.target.closest('.note-actions') && !e.target.closest('.pin-button') && !e.target.closest('.editable-category')) {
+                openViewNoteModal(note);
             }
-
-            #category-filter {
-                max-width: 100%;
-            }
-
-            .notes-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <header>
-        <h1>Notes App</h1>
-    </header>
-
-    <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search notes...">
-        <select id="category-filter">
-            <option value="">All Categories</option>
-        </select>
-    </div>
-
-    <div class="note-count" id="note-count"></div>
-
-    <div class="notes-grid" id="notes-grid"></div>
-</div>
-
-<div class="floating-button" id="add-note-btn">
-    <i class="fas fa-plus"></i>
-</div>
-
-<div id="note-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 class="modal-title">Add New Note</h2>
-        <input type="text" id="note-title" placeholder="Note Title">
-        <div class="format-buttons">
-            <button class="format-button" id="add-checkbox">Add Checkbox</button>
-            <button class="format-button" id="add-number">Add Number</button>
-            <button class="format-button" id="add-bullet">Add Bullet</button>
-        </div>
-        <textarea id="note-content" placeholder="Note Content"></textarea>
-        <input type="text" id="note-category" placeholder="Category (optional)">
-        <select id="existing-categories">
-            <option value="">Select Existing Category</option>
-        </select>
-        <button id="save-note">Save Note</button>
-    </div>
-</div>
-
-<div id="view-note-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 id="view-note-title" class="modal-title"></h2>
-        <div id="view-note-content"></div>
-        <p id="view-note-date"></p>
-        <p id="view-note-category"></p>
-    </div>
-</div>
-
-<div id="confirmation-dialog" class="confirmation-dialog">
-    <div class="confirmation-content">
-        <h3>Are you sure you want to delete this note?</h3>
-        <button id="confirm-delete">Yes</button>
-        <button id="cancel-delete">No</button>
-    </div>
-</div>
-
-<footer>
-    Powered by <a href="https://github.com/falendrasahu">Falendra Sahu ❤️</a>
-</footer>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyCu3slAv0AhfFpf7RB7NtcwjjdnpUL2EcI",
-        authDomain: "notes-app-427ce.firebaseapp.com",
-        projectId: "notes-app-427ce",
-        storageBucket: "notes-app-427ce.appspot.com",
-        messagingSenderId: "850682221877",
-        appId: "1:850682221877:web:8cb65fb6c45eb29308a87c",
-        measurementId: "G-DFN1TGW9F1"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let notes = [];
-    let categories = new Set();
-    let noteToDelete = null;
-
-    const notesGrid = document.getElementById('notes-grid');
-    const addNoteBtn = document.getElementById('add-note-btn');
-    const noteModal = document.getElementById('note-modal');
-    const viewNoteModal = document.getElementById('view-note-modal');
-    const confirmationDialog = document.getElementById('confirmation-dialog');
-    const closeModals = document.querySelectorAll('.close');
-    const saveNoteBtn = document.getElementById('save-note');
-    const searchInput = document.getElementById('search-input');
-    const categoryFilter = document.getElementById('category-filter');
-    const existingCategories = document.getElementById('existing-categories');
-    const noteCount = document.getElementById('note-count');
-    const addCheckboxBtn = document.getElementById('add-checkbox');
-    const addNumberBtn = document.getElementById('add-number');
-    const addBulletBtn = document.getElementById('add-bullet');
-
-    function renderNotes(filteredNotes = notes) {
-        notesGrid.innerHTML = '';
-        const sortedNotes = filteredNotes.sort((a, b) => {
-            if (a.pinned === b.pinned) {
-                return new Date(b.createdAt) - new Date(a.createdAt);
-            }
-            return b.pinned ? 1 : -1;
         });
+    });
 
-        sortedNotes.forEach(note => {
-            const noteCard = document.createElement('div');
-            noteCard.className = `note-card ${note.pinned ? 'pinned' : ''}`;
-            noteCard.innerHTML = `
-                <button class="pin-button ${note.pinned ? 'pinned' : ''}" data-id="${note.id}">
-                    <i class="fas fa-thumbtack"></i>
-                </button>
-                <div class="note-category editable-category" data-id="${note.id}">${note.category || 'Uncategorized'}</div>
-                <h3 class="note-title">${escapeHtml(note.title)}</h3>
-                <p class="note-content">${formatNoteContent(note.content.substring(0, 100))}${note.content.length > 100 ? '...' : ''}</p>
-                <p class="note-date">${formatDate(note.createdAt)}</p>
-                <div class="note-actions">
-                    <button class="edit-note" data-id="${note.id}"><i class="fas fa-edit"></i></button>
-                    <button class="delete-note" data-id="${note.id}"><i class="fas fa-trash-alt"></i></button>
-                    <button class="download-note" data-id="${note.id}"><i class="fas fa-download"></i></button>
-                </div>
-            `;
-            notesGrid.appendChild(noteCard);
+    updateNoteCount(filteredNotes.length);
+}
 
-            noteCard.addEventListener('click', (e) => {
-                if (!e.target.closest('.note-actions') && !e.target.closest('.pin-button') && !e.target.closest('.editable-category')) {
-                    openViewNoteModal(note);
-                }
-            });
+function formatNoteContent(content) {
+    return content.replace(/^(\d+\.|-|\*)\s/gm, '<span class="list-item">$&</span>');
+}
+
+function updateNoteCount(count) {
+    const categoryName = categoryFilter.value || 'All Categories';
+    noteCount.textContent = `${count} note${count !== 1 ? 's' : ''} in ${categoryName}`;
+}
+
+function updateCategoryFilters() {
+    categoryFilter.innerHTML = '<option value="">All Categories</option>';
+    existingCategories.innerHTML = '<option value="">Select Existing Category</option>';
+    categories.forEach(category => {
+        categoryFilter.innerHTML += `<option value="${category}">${category}</option>`;
+        existingCategories.innerHTML += `<option value="${category}">${category}</option>`;
+    });
+}
+
+async function addNote() {
+    const title = document.getElementById('note-title').value.trim();
+    const content = document.getElementById('note-content').value.trim();
+    const category = document.getElementById('note-category').value.trim() || document.getElementById('existing-categories').value;
+
+    if (title && content) {
+        const newNote = {
+            title,
+            content,
+            category,
+            createdAt: new Date().toISOString(),
+            pinned: false
+        };
+        await addDoc(collection(db, "notes"), newNote);
+        closeNoteModal();
+    }
+}
+
+function openNoteModal(note = null) {
+    const modalTitle = noteModal.querySelector('.modal-title');
+    const noteTitleInput = document.getElementById('note-title');
+    const noteContentInput = document.getElementById('note-content');
+    const noteCategoryInput = document.getElementById('note-category');
+
+    if (note) {
+        modalTitle.textContent = 'Edit Note';
+        noteTitleInput.value = note.title;
+        noteContentInput.value = note.content;
+        noteCategoryInput.value = note.category || '';
+        saveNoteBtn.onclick = () => updateNote(note.id);
+    } else {
+        modalTitle.textContent = 'Add New Note';
+        noteTitleInput.value = '';
+        noteContentInput.value = '';
+        noteCategoryInput.value = '';
+        saveNoteBtn.onclick = addNote;
+    }
+
+    noteModal.style.display = 'block';
+}
+
+function openViewNoteModal(note) {
+    document.getElementById('view-note-title').textContent = note.title;
+    const viewNoteContent = document.getElementById('view-note-content');
+    viewNoteContent.innerHTML = formatViewNoteContent(note.content);
+    document.getElementById('view-note-date').textContent = `Created: ${formatDate(note.createdAt)}`;
+    document.getElementById('view-note-category').textContent = `Category: ${note.category || 'Uncategorized'}`;
+
+    // Retain checkbox states
+    const checkboxes = viewNoteContent.querySelectorAll('li.checkbox');
+    checkboxes.forEach(li => {
+        li.addEventListener('click', () => {
+            li.classList.toggle('checked');
+            updateNoteCheckboxes(note.id);
         });
+    });
 
-        updateNoteCount(filteredNotes.length);
-    }
+    viewNoteModal.style.display = 'block';
+}
 
-    function formatNoteContent(content) {
-        return content.replace(/^(\d+\.|-|\*)\s/gm, '<span class="list-item">$&</span>');
-    }
-
-    function updateNoteCount(count) {
-        const categoryName = categoryFilter.value || 'All Categories';
-        noteCount.textContent = `${count} note${count !== 1 ? 's' : ''} in ${categoryName}`;
-    }
-
-    function updateCategoryFilters() {
-        categoryFilter.innerHTML = '<option value="">All Categories</option>';
-        existingCategories.innerHTML = '<option value="">Select Existing Category</option>';
-        categories.forEach(category => {
-            categoryFilter.innerHTML += `<option value="${category}">${category}</option>`;
-            existingCategories.innerHTML += `<option value="${category}">${category}</option>`;
-        });
-    }
-
-    async function addNote() {
-        const title = document.getElementById('note-title').value.trim();
-        const content = document.getElementById('note-content').value.trim();
-        const category = document.getElementById('note-category').value.trim() || document.getElementById('existing-categories').value;
-
-        if (title && content) {
-            const newNote = {
-                title,
-                content,
-                category,
-                createdAt: new Date().toISOString(),
-                pinned: false
-            };
-            await addDoc(collection(db, "notes"), newNote);
-            closeNoteModal();
-        }
-    }
-
-    function openNoteModal(note = null) {
-        const modalTitle = noteModal.querySelector('.modal-title');
-        const noteTitleInput = document.getElementById('note-title');
-        const noteContentInput = document.getElementById('note-content');
-        const noteCategoryInput = document.getElementById('note-category');
-
-        if (note) {
-            modalTitle.textContent = 'Edit Note';
-            noteTitleInput.value = note.title;
-            noteContentInput.value = note.content;
-            noteCategoryInput.value = note.category || '';
-            saveNoteBtn.onclick = () => updateNote(note.id);
+function formatViewNoteContent(content) {
+    let formattedContent = '<ul style="counter-reset: list-counter;">';
+    const lines = content.split('\n');
+    lines.forEach(line => {
+        if (line.startsWith('[ ] ')) {
+            formattedContent += `<li class="checkbox">${line.substring(4)}</li>`;
+        } else if (line.startsWith('[x] ')) {
+            formattedContent += `<li class="checkbox checked">${line.substring(4)}</li>`;
+        } else if (/^\d+\./.test(line)) {
+            formattedContent += `<li class="number">${line}</li>`;
+        } else if (line.startsWith('• ')) {
+            formattedContent += `<li class="bullet">${line}</li>`;
         } else {
-            modalTitle.textContent = 'Add New Note';
-            noteTitleInput.value = '';
-            noteContentInput.value = '';
-            noteCategoryInput.value = '';
-            saveNoteBtn.onclick = addNote;
+            formattedContent += `<li>${line}</li>`;
         }
+    });
+    formattedContent += '</ul>';
+    return formattedContent;
+}
 
-        noteModal.style.display = 'block';
+async function updateNoteCheckboxes(noteId) {
+    const viewNoteContent = document.getElementById('view-note-content');
+    const checkboxes = viewNoteContent.querySelectorAll('li.checkbox');
+
+    const updatedContent = [...checkboxes].map(li => {
+        const text = li.textContent;
+        return li.classList.contains('checked') ? `[x] ${text}` : `[ ] ${text}`;
+    }).join('\n');
+
+    await updateDoc(doc(db, "notes", noteId), {
+        content: updatedContent
+    });
+}
+
+function closeNoteModal() {
+    noteModal.style.display = 'none';
+    viewNoteModal.style.display = 'none';
+    confirmationDialog.style.display = 'none';
+}
+
+async function deleteNote() {
+    if (noteToDelete) {
+        await deleteDoc(doc(db, "notes", noteToDelete));
+        noteToDelete = null;
+        closeNoteModal();
     }
+}
 
-    function openViewNoteModal(note) {
-        document.getElementById('view-note-title').textContent = note.title;
-        const viewNoteContent = document.getElementById('view-note-content');
-        viewNoteContent.innerHTML = formatViewNoteContent(note.content);
-        document.getElementById('view-note-date').textContent = `Created: ${formatDate(note.createdAt)}`;
-        document.getElementById('view-note-category').textContent = `Category: ${note.category || 'Uncategorized'}`;
+async function updateNote(id) {
+    const title = document.getElementById('note-title').value.trim();
+    const content = document.getElementById('note-content').value.trim();
+    const category = document.getElementById('note-category').value.trim() || document.getElementById('existing-categories').value;
 
-        // Retain checkbox states
-        const checkboxes = viewNoteContent.querySelectorAll('li.checkbox');
-        checkboxes.forEach(li => {
-            li.addEventListener('click', () => {
-                li.classList.toggle('checked');
-                updateNoteCheckboxes(note.id);
-            });
-        });
-
-        viewNoteModal.style.display = 'block';
-    }
-
-    function formatViewNoteContent(content) {
-        let formattedContent = '<ul style="counter-reset: list-counter;">';
-        const lines = content.split('\n');
-        lines.forEach(line => {
-            if (line.startsWith('[ ] ')) {
-                formattedContent += `<li class="checkbox">${line.substring(4)}</li>`;
-            } else if (line.startsWith('[x] ')) {
-                formattedContent += `<li class="checkbox checked">${line.substring(4)}</li>`;
-            } else if (/^\d+\./.test(line)) {
-                formattedContent += `<li class="number">${line}</li>`;
-            } else if (line.startsWith('• ')) {
-                formattedContent += `<li class="bullet">${line}</li>`;
-            } else {
-                formattedContent += `<li>${line}</li>`;
-            }
-        });
-        formattedContent += '</ul>';
-        return formattedContent;
-    }
-
-    async function updateNoteCheckboxes(noteId) {
-        const viewNoteContent = document.getElementById('view-note-content');
-        const checkboxes = viewNoteContent.querySelectorAll('li.checkbox');
-
-        const updatedContent = [...checkboxes].map(li => {
-            const text = li.textContent;
-            return li.classList.contains('checked') ? `[x] ${text}` : `[ ] ${text}`;
-        }).join('\n');
-
-        await updateDoc(doc(db, "notes", noteId), {
-            content: updatedContent
-        });
-    }
-
-    function closeNoteModal() {
-        noteModal.style.display = 'none';
-        viewNoteModal.style.display = 'none';
-        confirmationDialog.style.display = 'none';
-    }
-
-    async function deleteNote() {
-        if (noteToDelete) {
-            await deleteDoc(doc(db, "notes", noteToDelete));
-            noteToDelete = null;
-            closeNoteModal();
-        }
-    }
-
-    async function updateNote(id) {
-        const title = document.getElementById('note-title').value.trim();
-        const content = document.getElementById('note-content').value.trim();
-        const category = document.getElementById('note-category').value.trim() || document.getElementById('existing-categories').value;
-
-        if (title && content) {
-            const note = notes.find(n => n.id === id);
-            await updateDoc(doc(db, "notes", id), {
-                title,
-                content,
-                category,
-                editedAt: new Date().toISOString(),
-                pinned: note.pinned
-            });
-            closeNoteModal();
-        }
-    }
-
-    async function togglePin(id) {
+    if (title && content) {
         const note = notes.find(n => n.id === id);
         await updateDoc(doc(db, "notes", id), {
-            pinned: !note.pinned
+            title,
+            content,
+            category,
+            editedAt: new Date().toISOString(),
+            pinned: note.pinned
         });
-    }
-
-    function filterNotes() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const categoryTerm = categoryFilter.value.toLowerCase();
-        const filteredNotes = notes.filter(note =>
-            (note.title.toLowerCase().includes(searchTerm) || note.content.toLowerCase().includes(searchTerm)) &&
-            (!categoryTerm || (note.category && note.category.toLowerCase() === categoryTerm))
-        );
-        renderNotes(filteredNotes);
-    }
-
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleString('en-US', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        }).replace(',', '').replace(/(\d+)\/(\d+)\/(\d+)/, "$2-$1-$3");
-    }
-
-    function downloadNote(note) {
-        const content = `${note.title}\n\n${note.content}\n\nCreated: ${formatDate(note.createdAt)}\nCategory: ${note.category || 'Uncategorized'}`;
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${escapeHtml(note.title)}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    function insertFormatting(format) {
-        const noteContent = document.getElementById('note-content');
-        const start = noteContent.selectionStart;
-        const end = noteContent.selectionEnd;
-        const text = noteContent.value;
-        let insertion;
-
-        switch (format) {
-            case 'checkbox':
-                insertion = '[ ] ';
-                break;
-            case 'number':
-                insertion = '1. ';
-                break;
-            case 'bullet':
-                insertion = '• ';
-                break;
-        }
-
-        noteContent.value = text.substring(0, start) + insertion + text.substring(end);
-        noteContent.focus();
-        noteContent.setSelectionRange(start + insertion.length, start + insertion.length);
-    }
-
-    function editCategory(noteId, categoryElement) {
-        const currentCategory = categoryElement.textContent;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = currentCategory;
-        input.className = 'category-edit-input';
-
-        input.onblur = async () => {
-            const newCategory = input.value.trim();
-            if (newCategory !== currentCategory) {
-                await updateDoc(doc(db, "notes", noteId), { category: newCategory });
-            } else {
-                categoryElement.textContent = currentCategory;
-            }
-        };
-
-        input.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                input.blur();
-            }
-        };
-
-        categoryElement.textContent = '';
-        categoryElement.appendChild(input);
-        input.focus();
-    }
-
-    addNoteBtn.addEventListener('click', () => openNoteModal());
-    closeModals.forEach(closeBtn => {
-        closeBtn.addEventListener('click', closeNoteModal);
-    });
-    searchInput.addEventListener('input', filterNotes);
-    categoryFilter.addEventListener('change', filterNotes);
-
-    notesGrid.addEventListener('click', (e) => {
-        const noteCard = e.target.closest('.note-card');
-        if (noteCard) {
-            const id = noteCard.querySelector('.delete-note').getAttribute('data-id');
-            if (e.target.closest('.delete-note')) {
-                noteToDelete = id;
-                confirmationDialog.style.display = 'flex';
-            } else if (e.target.closest('.edit-note')) {
-                const note = notes.find(n => n.id === id);
-                openNoteModal(note);
-            } else if (e.target.closest('.pin-button')) {
-                togglePin(id);
-            } else if (e.target.closest('.download-note')) {
-                const note = notes.find(n => n.id === id);
-                downloadNote(note);
-            } else if (e.target.closest('.editable-category')) {
-                editCategory(id, e.target.closest('.editable-category'));
-            }
-        }
-    });
-
-    document.getElementById('confirm-delete').addEventListener('click', deleteNote);
-    document.getElementById('cancel-delete').addEventListener('click', () => {
-        noteToDelete = null; 
         closeNoteModal();
+    }
+}
+
+async function togglePin(id) {
+    const note = notes.find(n => n.id === id);
+    await updateDoc(doc(db, "notes", id), {
+        pinned: !note.pinned
     });
+}
 
-    addCheckboxBtn.addEventListener('click', () => insertFormatting('checkbox'));
-    addNumberBtn.addEventListener('click', () => insertFormatting('number'));
-    addBulletBtn.addEventListener('click', () => insertFormatting('bullet'));
+function filterNotes() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const categoryTerm = categoryFilter.value.toLowerCase();
+    const filteredNotes = notes.filter(note =>
+        (note.title.toLowerCase().includes(searchTerm) || note.content.toLowerCase().includes(searchTerm)) &&
+        (!categoryTerm || (note.category && note.category.toLowerCase() === categoryTerm))
+    );
+    renderNotes(filteredNotes);
+}
 
-    document.getElementById('note-content').addEventListener('keydown', function(e) {
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    }).replace(',', '').replace(/(\d+)\/(\d+)\/(\d+)/, "$2-$1-$3");
+}
+
+function downloadNote(note) {
+    const content = `${note.title}\n\n${note.content}\n\nCreated: ${formatDate(note.createdAt)}\nCategory: ${note.category || 'Uncategorized'}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${escapeHtml(note.title)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function insertFormatting(format) {
+    const noteContent = document.getElementById('note-content');
+    const start = noteContent.selectionStart;
+    const end = noteContent.selectionEnd;
+    const text = noteContent.value;
+    let insertion;
+
+    switch (format) {
+        case 'checkbox':
+            insertion = '[ ] ';
+            break;
+        case 'number':
+            insertion = '1. ';
+            break;
+        case 'bullet':
+            insertion = '• ';
+            break;
+    }
+
+    noteContent.value = text.substring(0, start) + insertion + text.substring(end);
+    noteContent.focus();
+    noteContent.setSelectionRange(start + insertion.length, start + insertion.length);
+}
+
+function editCategory(noteId, categoryElement) {
+    const currentCategory = categoryElement.textContent;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentCategory;
+    input.className = 'category-edit-input';
+
+    input.onblur = async () => {
+        const newCategory = input.value.trim();
+        if (newCategory !== currentCategory) {
+            await updateDoc(doc(db, "notes", noteId), { category: newCategory });
+        } else {
+            categoryElement.textContent = currentCategory;
+        }
+    };
+
+    input.onkeydown = (e) => {
         if (e.key === 'Enter') {
-            e.preventDefault();
-            const cursorPosition = this.selectionStart;
-            const content = this.value;
-            const lines = content.substr(0, cursorPosition).split('\n');
-            const currentLine = lines[lines.length - 1];
-
-            let newLine = '\n';
-            if (currentLine.startsWith('[ ] ') || currentLine.startsWith('[x] ')) {
-                newLine += '[ ] ';
-            } else if (/^\d+\.\s/.test(currentLine)) {
-                const number = parseInt(currentLine.match(/^\d+/)[0]);
-                newLine += `${number + 1}. `;
-            } else if (currentLine.startsWith('• ')) {
-                newLine += '• ';
-            }
-
-            this.value = content.substring(0, cursorPosition) + newLine + content.substring(cursorPosition);
-            this.selectionStart = this.selectionEnd = cursorPosition + newLine.length;
+            input.blur();
         }
-    });
+    };
 
-    window.addEventListener('click', (e) => {
-        if (e.target === noteModal || e.target === viewNoteModal || e.target === confirmationDialog) {
-            closeNoteModal();
+    categoryElement.textContent = '';
+    categoryElement.appendChild(input);
+    input.focus();
+}
+
+addNoteBtn.addEventListener('click', () => openNoteModal());
+closeModals.forEach(closeBtn => {
+    closeBtn.addEventListener('click', closeNoteModal);
+});
+searchInput.addEventListener('input', filterNotes);
+categoryFilter.addEventListener('change', filterNotes);
+
+notesGrid.addEventListener('click', (e) => {
+    const noteCard = e.target.closest('.note-card');
+    if (noteCard) {
+        const id = noteCard.querySelector('.delete-note').getAttribute('data-id');
+        if (e.target.closest('.delete-note')) {
+            noteToDelete = id;
+            confirmationDialog.style.display = 'flex';
+        } else if (e.target.closest('.edit-note')) {
+            const note = notes.find(n => n.id === id);
+            openNoteModal(note);
+        } else if (e.target.closest('.pin-button')) {
+            togglePin(id);
+        } else if (e.target.closest('.download-note')) {
+            const note = notes.find(n => n.id === id);
+            downloadNote(note);
+        } else if (e.target.closest('.editable-category')) {
+            editCategory(id, e.target.closest('.editable-category'));
         }
-    });
+    }
+});
 
-    onSnapshot(collection(db, "notes"), (snapshot) => {
-        notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        categories = new Set(notes.map(note => note.category).filter(Boolean));
-        updateCategoryFilters();
-        renderNotes();
-    });
-</script>
-</body>
-</html>
+document.getElementById('confirm-delete').addEventListener('click', deleteNote);
+document.getElementById('cancel-delete').addEventListener('click', () => {
+    noteToDelete = null; 
+    closeNoteModal();
+});
+
+addCheckboxBtn.addEventListener('click', () => insertFormatting('checkbox'));
+addNumberBtn.addEventListener('click', () => insertFormatting('number'));
+addBulletBtn.addEventListener('click', () => insertFormatting('bullet'));
+
+document.getElementById('note-content').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const cursorPosition = this.selectionStart;
+        const content = this.value;
+        const lines = content.substr(0, cursorPosition).split('\n');
+        const currentLine = lines[lines.length - 1];
+
+        let newLine = '\n';
+        if (currentLine.startsWith('[ ] ') || currentLine.startsWith('[x] ')) {
+            newLine += '[ ] ';
+        } else if (/^\d+\.\s/.test(currentLine)) {
+            const number = parseInt(currentLine.match(/^\d+/)[0]);
+            newLine += `${number + 1}. `;
+        } else if (currentLine.startsWith('• ')) {
+            newLine += '• ';
+        }
+
+        this.value = content.substring(0, cursorPosition) + newLine + content.substring(cursorPosition);
+        this.selectionStart = this.selectionEnd = cursorPosition + newLine.length;
+    }
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === noteModal || e.target === viewNoteModal || e.target === confirmationDialog) {
+        closeNoteModal();
+    }
+});
+
+onSnapshot(collection(db, "notes"), (snapshot) => {
+    notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    categories = new Set(notes.map(note => note.category).filter(Boolean));
+    updateCategoryFilters();
+    renderNotes();
+});
+</script></body></html>
