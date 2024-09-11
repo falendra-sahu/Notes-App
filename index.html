@@ -816,7 +816,7 @@
                     li.className = 'checkbox-item';
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
-                    checkbox.checked = item.startsWith('- [x] ');
+                    checkbox.checked = item.startsWith('⚫');
                     checkbox.addEventListener('change', () => {
                         checkboxStates[index] = checkbox.checked;
                         if (checkbox.checked) {
@@ -826,7 +826,7 @@
                         }
                     });
                     const label = document.createElement('label');
-                    label.textContent = item.substring(6);
+                    label.textContent = item.substring(2);
                     li.appendChild(checkbox);
                     li.appendChild(label);
                     if (!checkbox.checked) {
@@ -854,7 +854,7 @@
                     checkboxItems.forEach((item) => {
                         const checkbox = item.querySelector('input[type="checkbox"]');
                         const label = item.querySelector('label');
-                        updatedContent += `- [${checkbox.checked ? 'x' : ' '}] ${label.textContent}\n`;
+                        updatedContent += `${checkbox.checked ? '⚫' : '◯'} ${label.textContent}\n`;
                     });
 
                     await updateDoc(noteRef, {
@@ -905,16 +905,27 @@
             toggleCheckboxModeBtn.textContent = isCheckboxMode ? 'Disable Checkbox Mode' : 'Enable Checkbox Mode';
             if (isCheckboxMode) {
                 const lines = noteContentInput.value.split('\n');
-                const checkboxLines = lines.map(line => `- [ ] ${line}`);
+                const checkboxLines = lines.map(line => `◯ ${line}`);
                 noteContentInput.value = checkboxLines.join('\n');
             } else {
                 const lines = noteContentInput.value.split('\n');
-                const normalLines = lines.map(line => line.replace(/^- $$[ x]$$ /, ''));
+                const normalLines = lines.map(line => line.replace(/^[◯⚫] /, ''));
                 noteContentInput.value = normalLines.join('\n');
             }
         });
 
-        saveNoteBtn.addEventListener('click', async () => {
+        noteContentInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && isCheckboxMode) {
+                e.preventDefault();
+                const cursorPosition = noteContentInput.selectionStart;
+                const content = noteContentInput.value;
+                const newContent = content.slice(0, cursorPosition) + '\n◯ ' + content.slice(cursorPosition);
+                noteContentInput.value = newContent;
+                noteContentInput.selectionStart = noteContentInput.selectionEnd = cursorPosition + 3;
+            }
+        });
+
+                saveNoteBtn.addEventListener('click', async () => {
             const noteTitle = noteTitleInput.value.trim();
             const noteContent = noteContentInput.value.trim();
             const noteCategory = noteCategorySelect.value === 'new' ? newCategoryInput.value.trim() : noteCategorySelect.value;
@@ -926,7 +937,7 @@
                         const option = document.createElement('option');
                         option.value = sanitizedCategory;
                         option.textContent = sanitizedCategory;
-                                                noteCategorySelect.insertBefore(option, noteCategorySelect.lastChild);
+                        noteCategorySelect.insertBefore(option, noteCategorySelect.lastChild);
                     }
                 }
 
