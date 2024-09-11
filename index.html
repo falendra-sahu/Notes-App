@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
+		:root {
             --bg-color: #f5f5f5;
             --left-border-color: #000;
             --modal-border-color: #000;
@@ -582,7 +582,7 @@
         #toggleCheckboxMode:hover {
             background-color: #45a049;
         }
-    </style>
+  </style>
 </head>
 <body>
     <div class="container">
@@ -631,7 +631,7 @@
             <input type="text" id="newCategory" placeholder="New category name" style="display: none;">
             <div style="display: flex; justify-content: space-between;">
                 <button id="saveNote">Save</button>
-                <button id="cancelNote" onclick="closeAddNoteModal()">Cancel</button>
+                <button id="cancelNote">Cancel</button>
             </div>
         </div>
     </div>
@@ -707,6 +707,7 @@
         const addNoteBtn = document.getElementById('addNoteBtn');
         const modal = document.getElementById('noteModal');
         const saveNoteBtn = document.getElementById('saveNote');
+        const cancelNoteBtn = document.getElementById('cancelNote');
         const searchInput = document.getElementById('searchInput');
         const searchSelect = document.getElementById('searchSelect');
         const viewNoteModal = document.getElementById('viewNoteModal');
@@ -924,13 +925,13 @@
             }
         });
 
-        saveNoteBtn.addEventListener('click', async () => {
+                saveNoteBtn.addEventListener('click', async () => {
             const noteTitle = noteTitleInput.value.trim();
             const noteContent = noteContentInput.value.trim();
             const noteCategory = noteCategorySelect.value === 'new' ? newCategoryInput.value.trim() : noteCategorySelect.value;
 
             if (noteTitle && noteContent) {
-                                if (noteCategory && noteCategory !== 'new') {
+                if (noteCategory && noteCategory !== 'new') {
                     const sanitizedCategory = noteCategory.replace(/['"]/g, "");
                     if (await getNotes().then(notes => !notes.some(note => note.category === sanitizedCategory))) {
                         const option = document.createElement('option');
@@ -964,6 +965,10 @@
             }
         });
 
+        cancelNoteBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
         searchInput.addEventListener('input', renderNotes);
         searchSelect.addEventListener('change', renderNotes);
 
@@ -974,26 +979,9 @@
             renderNotes();
         });
 
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-            if (e.target === viewNoteModal) {
-                viewNoteModal.style.display = 'none';
-                updateNoteContent();
-            }
-            if (e.target === confirmationDialog) {
-                confirmationDialog.style.display = 'none';
-            }
-        });
-
         window.closeViewNoteModal = function () {
             viewNoteModal.style.display = 'none';
             updateNoteContent();
-        };
-
-        window.closeAddNoteModal = function () {
-            modal.style.display = 'none';
         };
 
         window.editNote = function () {
