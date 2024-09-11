@@ -731,6 +731,7 @@
         let currentNoteIndex = null;
         let isCheckboxMode = false;
         let isDarkTheme = false;
+        let checkboxStates = {};
 
         async function showNotification(message) {
             notificationMessage.innerText = message;
@@ -767,12 +768,11 @@
                 );
             });
 
-            // Sorting notes: pinned notes on top and newest first
             filteredNotes.sort((a, b) => {
                 if (b.pinned !== a.pinned) {
                     return b.pinned ? 1 : -1;
                 }
-                return new Date(b.date) - new Date(a.date); // Newest first
+                return new Date(b.date) - new Date(a.date);
             });
 
             filteredNotes.forEach(note => {
@@ -780,16 +780,15 @@
                 noteElement.classList.add('note');
                 if (note.pinned) noteElement.classList.add('pinned');
                 noteElement.innerHTML = `
-    <div class="note-title">${note.title}</div>
-    <div class="note-content">${note.content.replace(/\n/g, '<br>')}</div> <!-- Allow line breaks -->
-    <div class="note-category">${note.category || 'Uncategorized'}</div>
-    <div class="note-date">${formatDate(note.date)}</div>
-`;
-
+                    <div class="note-title">${note.title}</div>
+                    <div class="note-content">${note.content.replace(/\n/g, '<br>')}</div>
+                    <div class="note-category">${note.category || 'Uncategorized'}</div>
+                    <div class="note-date">${formatDate(note.date)}</div>
+                `;
                 noteElement.addEventListener('click', () => {
                     currentNoteIndex = note.id;
                     viewNoteTitle.innerText = note.title;
-                    renderViewNoteContent(note.content);
+                    renderViewNoteContent(note);
                     viewNoteDate.innerText = formatDate(note.date);
                     viewNoteCategory.innerText = `Category: ${note.category || 'None'}`;
                     pinIcon.classList.toggle('pinned', note.pinned);
@@ -811,48 +810,64 @@
             return notesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
 
-        function renderViewNoteContent(content) {
-            if (content.startsWith('- [ ] ') || content.startsWith('- [x] ')) {
+        function renderViewNoteContent(note) {
+            viewNoteContent.innerHTML = '';
+            if (note.isCheckboxMode) {
                 const checkboxList = document.createElement('ul');
                 checkboxList.className = 'checkbox-list';
-                const items = content.split('\n');
-                items.forEach(item => {
-                    if (item.startsWith('- [ ] ') || item.startsWith('- [x] ')) {
-                        const li = document.createElement('li');
-                        li.className = 'checkbox-item';
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.checked = item.startsWith('- [x] ');
-                        checkbox.addEventListener('change', () => {
-                            updateNoteContent();
-                        });
-                        const label = document.createElement('label');
-                        label.textContent = item.substring(6);
-                        li.appendChild(checkbox);
-                        li.appendChild(label);
+                const items = note.content.split('\n');
+
+                items.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'checkbox-item';
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = item.startsWith('- [x] ');
+                    checkbox.addEventListener('change', () => {
+                        checkboxStates[index] = checkbox.checked;
+                        if (checkbox.checked) {
+                            checkboxList.appendChild(li);
+                        } else {
+                            checkboxList.prepend(li);
+                        }
+                    });
+                    const label = document.createElement('label');
+                    label.textContent = item.substring(6);
+                    li.appendChild(checkbox);
+                    li.appendChild(label);
+                    if (!checkbox.checked) {
+                        checkboxList.prepend(li);
+                    } else {
                         checkboxList.appendChild(li);
                     }
                 });
-                viewNoteContent.innerHTML = '';
                 viewNoteContent.appendChild(checkboxList);
             } else {
-                viewNoteContent.innerText = content;
+                viewNoteContent.innerText = note.content;
             }
         }
 
         async function updateNoteContent() {
             if (currentNoteIndex) {
-                const checkboxItems = viewNoteContent.querySelectorAll('.checkbox-item');
-                let updatedContent = '';
-                checkboxItems.forEach(item => {
-                    const checkbox = item.querySelector('input[type="checkbox"]');
-                    const label = item.querySelector('label');
-                    updatedContent += `- [${checkbox.checked ? 'x' : ' '}] ${label.textContent}\n`;
-                });
-                
-                await updateDoc(doc(db, 'notes', currentNoteIndex), {
-                    content: updatedContent.trim()
-                });
+                const noteRef = doc(db, 'notes', currentNoteIndex);
+                const noteSnapshot = await getDoc(noteRef);
+                const note = noteSnapshot.data();
+
+                if (note.isCheckboxMode) {
+                    const checkboxItems = viewNoteContent.querySelectorAll('.checkbox-item');
+                    let updatedContent = '';
+
+                    checkboxItems.forEach((item) => {
+                        const checkbox = item.querySelector('input[type="checkbox"]');
+                        const label = item.querySelector('label');
+                        updatedContent += `- [${checkbox.checked ? 'x' : ' '}] ${label.textContent}\n`;
+                    });
+
+                    await updateDoc(noteRef, {
+                        content: updatedContent.trim()
+                    });
+                }
+
                 await renderNotes();
             }
         }
@@ -877,6 +892,7 @@
             newCategoryInput.value = '';
             isCheckboxMode = false;
             toggleCheckboxModeBtn.textContent = 'Enable Checkbox Mode';
+            checkboxStates = {};
         }
 
         addNoteBtn.addEventListener('click', () => {
@@ -914,7 +930,7 @@
             const noteCategory = noteCategorySelect.value === 'new' ? newCategoryInput.value.trim() : noteCategorySelect.value;
 
             if (noteTitle && noteContent) {
-                if (noteCategory && noteCategory !== 'new') {
+                                if (noteCategory && noteCategory !== 'new') {
                     const sanitizedCategory = noteCategory.replace(/['"]/g, "");
                     if (await getNotes().then(notes => !notes.some(note => note.category === sanitizedCategory))) {
                         const option = document.createElement('option');
@@ -928,8 +944,9 @@
                     title: noteTitle,
                     content: noteContent,
                     category: noteCategory ? noteCategory : 'Uncategorized',
-                    date: new Date().toISOString(), // Store as ISO string for sorting
-                    pinned: false
+                    date: new Date().toISOString(),
+                    pinned: false,
+                    isCheckboxMode: isCheckboxMode
                 };
 
                 if (currentNoteIndex === null) {
@@ -963,6 +980,7 @@
             }
             if (e.target === viewNoteModal) {
                 viewNoteModal.style.display = 'none';
+                updateNoteContent();
             }
             if (e.target === confirmationDialog) {
                 confirmationDialog.style.display = 'none';
@@ -971,6 +989,7 @@
 
         window.closeViewNoteModal = function () {
             viewNoteModal.style.display = 'none';
+            updateNoteContent();
         };
 
         window.closeAddNoteModal = function () {
@@ -985,8 +1004,8 @@
                     noteContentInput.value = note.content;
                     noteCategorySelect.value = note.category || '';
                     newCategoryInput.style.display = 'none';
-                    isCheckboxMode = note.content.startsWith('- [ ] ') || note.content.startsWith('- [x] ');
-                    toggleCheckboxModeBtn.textContent = isCheckboxMode ? 'Disable Checkbox Mode' : 'Toggle Checkbox Mode';
+                    isCheckboxMode = note.isCheckboxMode;
+                    toggleCheckboxModeBtn.textContent = isCheckboxMode ? 'Disable Checkbox Mode' : 'Enable Checkbox Mode';
                     modal.style.display = 'flex';
                     viewNoteModal.style.display = 'none';
                 });
