@@ -688,7 +688,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCu3slAv0AhfFpf7RB7NtcwjjdnpUL2EcI",
@@ -733,8 +733,9 @@
         let isCheckboxMode = false;
         let isDarkTheme = false;
         let checkboxStates = {};
+        let notes = [];
 
-        async function showNotification(message) {
+        function showNotification(message) {
             notificationMessage.innerText = message;
             notificationMessage.style.display = 'block';
             setTimeout(() => {
@@ -742,17 +743,14 @@
             }, 1000);
         }
 
-        async function updateNotesCount() {
-            const notes = await getNotes();
+        function updateNotesCount() {
             notesCount.innerText = `Total Notes: ${notes.length}`;
         }
 
-        async function renderNotes() {
+        function renderNotes() {
             notesContainer.innerHTML = '';
             const filterValue = searchInput.value.toLowerCase();
             const searchBy = searchSelect.value;
-
-            const notes = await getNotes();
 
             const filteredNotes = notes.filter(note => {
                 if (searchBy === "title") {
@@ -798,17 +796,12 @@
                 notesContainer.appendChild(noteElement);
             });
 
-            await updateNotesCount();
+            updateNotesCount();
         }
 
         function formatDate(dateString) {
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             return new Date(dateString).toLocaleDateString(undefined, options);
-        }
-
-        async function getNotes() {
-            const notesSnapshot = await getDocs(collection(db, 'notes'));
-            return notesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
 
         function renderViewNoteContent(note) {
@@ -868,21 +861,17 @@
                         content: updatedContent.trim()
                     });
                 }
-
-                await renderNotes();
             }
         }
 
         function updateCategorySelect() {
             noteCategorySelect.innerHTML = '<option value="" disabled selected>Select category (optional)</option><option value="new">Add New Category</option>';
-            getNotes().then(uniqueCategories => {
-                const categoriesSet = new Set(uniqueCategories.map(note => note.category).filter(Boolean));
-                categoriesSet.forEach(category => {
-                    const option = document.createElement('option');
-                    option.value = category;
-                    option.textContent = category;
-                    noteCategorySelect.appendChild(option);
-                });
+            const categoriesSet = new Set(notes.map(note => note.category).filter(Boolean));
+            categoriesSet.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                noteCategorySelect.appendChild(option);
             });
         }
 
@@ -925,7 +914,7 @@
             }
         });
 
-                saveNoteBtn.addEventListener('click', async () => {
+        saveNoteBtn.addEventListener('click', async () => {
             const noteTitle = noteTitleInput.value.trim();
             const noteContent = noteContentInput.value.trim();
             const noteCategory = noteCategorySelect.value === 'new' ? newCategoryInput.value.trim() : noteCategorySelect.value;
@@ -933,11 +922,11 @@
             if (noteTitle && noteContent) {
                 if (noteCategory && noteCategory !== 'new') {
                     const sanitizedCategory = noteCategory.replace(/['"]/g, "");
-                    if (await getNotes().then(notes => !notes.some(note => note.category === sanitizedCategory))) {
+                    if (!notes.some(note => note.category === sanitizedCategory)) {
                         const option = document.createElement('option');
                         option.value = sanitizedCategory;
                         option.textContent = sanitizedCategory;
-                        noteCategorySelect.insertBefore(option, noteCategorySelect.lastChild);
+                                                noteCategorySelect.insertBefore(option, noteCategorySelect.lastChild);
                     }
                 }
 
@@ -957,7 +946,6 @@
                     await updateDoc(doc(db, 'notes', currentNoteIndex), noteData);
                     showNotification("Note updated!");
                 }
-                await renderNotes();
                 modal.style.display = 'none';
                 updateCategorySelect();
             } else {
@@ -986,17 +974,15 @@
 
         window.editNote = function () {
             if (currentNoteIndex) {
-                getNotes().then(notes => {
-                    const note = notes.find(note => note.id === currentNoteIndex);
-                    noteTitleInput.value = note.title;
-                    noteContentInput.value = note.content;
-                    noteCategorySelect.value = note.category || '';
-                    newCategoryInput.style.display = 'none';
-                    isCheckboxMode = note.isCheckboxMode;
-                    toggleCheckboxModeBtn.textContent = isCheckboxMode ? 'Disable Checkbox Mode' : 'Enable Checkbox Mode';
-                    modal.style.display = 'flex';
-                    viewNoteModal.style.display = 'none';
-                });
+                const note = notes.find(note => note.id === currentNoteIndex);
+                noteTitleInput.value = note.title;
+                noteContentInput.value = note.content;
+                noteCategorySelect.value = note.category || '';
+                newCategoryInput.style.display = 'none';
+                isCheckboxMode = note.isCheckboxMode;
+                toggleCheckboxModeBtn.textContent = isCheckboxMode ? 'Disable Checkbox Mode' : 'Enable Checkbox Mode';
+                modal.style.display = 'flex';
+                viewNoteModal.style.display = 'none';
             }
         };
 
@@ -1007,7 +993,6 @@
         confirmDeleteBtn.addEventListener('click', async () => {
             if (currentNoteIndex) {
                 await deleteDoc(doc(db, 'notes', currentNoteIndex));
-                await renderNotes();
                 viewNoteModal.style.display = 'none';
                 showNotification("Note deleted!");
             }
@@ -1020,33 +1005,29 @@
 
         window.downloadNote = function () {
             if (currentNoteIndex) {
-                getNotes().then(notes => {
-                    const note = notes.find(note => note.id === currentNoteIndex);
-                    const element = document.createElement('a');
-                    const file = new Blob([`${note.title}\n\n${note.content}\n\nCategory: ${note.category || 'None'}`], {
-                        type: 'text/plain'
-                    });
-                    element.href = URL.createObjectURL(file);
-                    element.download = `${note.title}.txt`;
-                    document.body.appendChild(element);
-                    element.click();
-                    document.body.removeChild(element);
+                const note = notes.find(note => note.id === currentNoteIndex);
+                const element = document.createElement('a');
+                const file = new Blob([`${note.title}\n\n${note.content}\n\nCategory: ${note.category || 'None'}`], {
+                    type: 'text/plain'
                 });
+                element.href = URL.createObjectURL(file);
+                element.download = `${note.title}.txt`;
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
             }
         };
 
         window.copyNoteContent = function () {
             if (currentNoteIndex) {
-                getNotes().then(notes => {
-                    const note = notes.find(note => note.id === currentNoteIndex);
-                    navigator.clipboard.writeText(note.content)
-                        .then(() => {
-                            showNotification('Note content copied to clipboard!');
-                        })
-                        .catch(err => {
-                            console.error('Failed to copy: ', err);
-                        });
-                });
+                const note = notes.find(note => note.id === currentNoteIndex);
+                navigator.clipboard.writeText(note.content)
+                    .then(() => {
+                        showNotification('Note content copied to clipboard!');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
             }
         };
 
@@ -1058,7 +1039,6 @@
                 note.pinned = !note.pinned;
                 await updateDoc(noteRef, { pinned: note.pinned });
                 pinIcon.classList.toggle('pinned', note.pinned);
-                await renderNotes();
             }
         };
 
@@ -1072,9 +1052,13 @@
             }, 300);
         });
 
-        async function init() {
-            await renderNotes();
-            updateCategorySelect();
+        function init() {
+            const q = query(collection(db, 'notes'), orderBy('date', 'desc'));
+            onSnapshot(q, (snapshot) => {
+                notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderNotes();
+                updateCategorySelect();
+            });
         }
 
         init();
