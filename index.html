@@ -248,13 +248,14 @@
         }
 
         .note-content {
-            flex-grow: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-        }
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Limit to 4 lines */
+    -webkit-box-orient: vertical;
+}
+
 
         .note-category {
             font-size: 0.8em;
@@ -779,11 +780,12 @@
                 noteElement.classList.add('note');
                 if (note.pinned) noteElement.classList.add('pinned');
                 noteElement.innerHTML = `
-                    <div class="note-title">${note.title}</div>
-                    <div class="note-content">${note.content}</div>
-                    <div class="note-category">${note.category || 'Uncategorized'}</div>
-                    <div class="note-date">${formatDate(note.date)}</div>
-                `;
+    <div class="note-title">${note.title}</div>
+    <div class="note-content">${note.content.replace(/\n/g, '<br>')}</div> <!-- Allow line breaks -->
+    <div class="note-category">${note.category || 'Uncategorized'}</div>
+    <div class="note-date">${formatDate(note.date)}</div>
+`;
+
                 noteElement.addEventListener('click', () => {
                     currentNoteIndex = note.id;
                     viewNoteTitle.innerText = note.title;
