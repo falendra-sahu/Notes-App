@@ -686,11 +686,9 @@
     </div>
 
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCu3slAv0AhfFpf7RB7NtcwjjdnpUL2EcI",
             authDomain: "notes-app-427ce.firebaseapp.com",
@@ -701,11 +699,9 @@
             measurementId: "G-DFN1TGW9F1"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Elements
         const notesContainer = document.getElementById('notesContainer');
         const addNoteBtn = document.getElementById('addNoteBtn');
         const modal = document.getElementById('noteModal');
@@ -731,7 +727,7 @@
         const themeToggle = document.getElementById('themeToggle');
         const clearSearch = document.getElementById('clearSearch');
 
-        let currentNoteIndex = -1;
+        let currentNoteIndex = null;
         let isCheckboxMode = false;
         let isDarkTheme = false;
 
@@ -754,6 +750,7 @@
             const searchBy = searchSelect.value;
 
             const notes = await getNotes();
+
             const filteredNotes = notes.filter(note => {
                 if (searchBy === "title") {
                     return note.title.toLowerCase().includes(filterValue);
@@ -769,9 +766,15 @@
                 );
             });
 
-            filteredNotes.sort((a, b) => b.pinned - a.pinned);
+            // Sorting notes: pinned notes on top and newest first
+            filteredNotes.sort((a, b) => {
+                if (b.pinned !== a.pinned) {
+                    return b.pinned ? 1 : -1;
+                }
+                return new Date(b.date) - new Date(a.date); // Newest first
+            });
 
-            filteredNotes.forEach((note) => {
+            filteredNotes.forEach(note => {
                 const noteElement = document.createElement('div');
                 noteElement.classList.add('note');
                 if (note.pinned) noteElement.classList.add('pinned');
@@ -779,13 +782,13 @@
                     <div class="note-title">${note.title}</div>
                     <div class="note-content">${note.content}</div>
                     <div class="note-category">${note.category || 'Uncategorized'}</div>
-                    <div class="note-date">${note.date}</div>
+                    <div class="note-date">${formatDate(note.date)}</div>
                 `;
                 noteElement.addEventListener('click', () => {
                     currentNoteIndex = note.id;
                     viewNoteTitle.innerText = note.title;
                     renderViewNoteContent(note.content);
-                    viewNoteDate.innerText = note.date;
+                    viewNoteDate.innerText = formatDate(note.date);
                     viewNoteCategory.innerText = `Category: ${note.category || 'None'}`;
                     pinIcon.classList.toggle('pinned', note.pinned);
                     viewNoteModal.style.display = 'flex';
@@ -794,6 +797,11 @@
             });
 
             await updateNotesCount();
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
         }
 
         async function getNotes() {
@@ -831,7 +839,7 @@
         }
 
         async function updateNoteContent() {
-            if (currentNoteIndex !== -1) {
+            if (currentNoteIndex) {
                 const checkboxItems = viewNoteContent.querySelectorAll('.checkbox-item');
                 let updatedContent = '';
                 checkboxItems.forEach(item => {
@@ -871,7 +879,7 @@
 
         addNoteBtn.addEventListener('click', () => {
             resetModalInputs();
-            currentNoteIndex = -1;
+            currentNoteIndex = null;
             modal.style.display = 'flex';
         });
 
@@ -918,15 +926,11 @@
                     title: noteTitle,
                     content: noteContent,
                     category: noteCategory ? noteCategory : 'Uncategorized',
-                    date: new Date().toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    }),
+                    date: new Date().toISOString(), // Store as ISO string for sorting
                     pinned: false
                 };
 
-                if (currentNoteIndex === -1) {
+                if (currentNoteIndex === null) {
                     await addDoc(collection(db, 'notes'), noteData);
                     showNotification("Note added!");
                 } else {
@@ -935,6 +939,7 @@
                 }
                 await renderNotes();
                 modal.style.display = 'none';
+                updateCategorySelect();
             } else {
                 showNotification("Please fill in both title and content.");
             }
@@ -971,7 +976,7 @@
         };
 
         window.editNote = function () {
-            if (currentNoteIndex !== -1) {
+            if (currentNoteIndex) {
                 getNotes().then(notes => {
                     const note = notes.find(note => note.id === currentNoteIndex);
                     noteTitleInput.value = note.title;
@@ -991,7 +996,7 @@
         };
 
         confirmDeleteBtn.addEventListener('click', async () => {
-            if (currentNoteIndex !== -1) {
+            if (currentNoteIndex) {
                 await deleteDoc(doc(db, 'notes', currentNoteIndex));
                 await renderNotes();
                 viewNoteModal.style.display = 'none';
@@ -1005,7 +1010,7 @@
         });
 
         window.downloadNote = function () {
-            if (currentNoteIndex !== -1) {
+            if (currentNoteIndex) {
                 getNotes().then(notes => {
                     const note = notes.find(note => note.id === currentNoteIndex);
                     const element = document.createElement('a');
@@ -1022,7 +1027,7 @@
         };
 
         window.copyNoteContent = function () {
-            if (currentNoteIndex !== -1) {
+            if (currentNoteIndex) {
                 getNotes().then(notes => {
                     const note = notes.find(note => note.id === currentNoteIndex);
                     navigator.clipboard.writeText(note.content)
@@ -1037,7 +1042,7 @@
         };
 
         window.togglePin = async function () {
-            if (currentNoteIndex !== -1) {
+            if (currentNoteIndex) {
                 const noteRef = doc(db, 'notes', currentNoteIndex);
                 const noteSnapshot = await getDoc(noteRef);
                 const note = noteSnapshot.data();
@@ -1048,13 +1053,10 @@
             }
         };
 
-        // Theme toggle functionality
         themeToggle.addEventListener('click', () => {
             isDarkTheme = !isDarkTheme;
             document.body.classList.toggle('dark-theme', isDarkTheme);
             themeToggle.innerHTML = isDarkTheme ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-            
-            // Add animation to the theme toggle button
             themeToggle.style.transform = 'rotate(360deg)';
             setTimeout(() => {
                 themeToggle.style.transform = 'rotate(0deg)';
