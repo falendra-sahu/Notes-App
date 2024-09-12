@@ -57,14 +57,17 @@
             background-image: var(--container-bg);
             border-radius: 10px;
             box-shadow: 0 1px 1px var(--shadow-color);
-            width: 90%;
-            max-width: 1200px;
+            width: 100vw; /* Full width */
+            max-width: none; /* Remove max-width constraint */
             height: 94vh;
             padding: 20px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             transition: all 0.3s ease;
+            position: relative; /* Add if necessary for layering */
+            left: 0; /* Ensure it starts from the left edge */
+            right: 0; /* Ensure it extends to the right edge */
         }
 
         header {
