@@ -927,44 +927,53 @@
             }
         });
 
-                saveNoteBtn.addEventListener('click', async () => {
-            const noteTitle = noteTitleInput.value.trim();
-            const noteContent = noteContentInput.value.trim();
-            const noteCategory = noteCategorySelect.value === 'new' ? newCategoryInput.value.trim() : noteCategorySelect.value;
+               saveNoteBtn.addEventListener('click', async () => {
+    const noteTitle = noteTitleInput.value.trim();
+    const noteContent = noteContentInput.value.trim();
+    const noteCategory = noteCategorySelect.value === 'new' ? newCategoryInput.value.trim() : noteCategorySelect.value;
 
-            if (noteTitle && noteContent) {
-                if (noteCategory && noteCategory !== 'new') {
-                    const sanitizedCategory = noteCategory.replace(/['"]/g, "");
-                    if (!notes.some(note => note.category === sanitizedCategory)) {
-                        const option = document.createElement('option');
-                        option.value = sanitizedCategory;
-                        option.textContent = sanitizedCategory;
-                        noteCategorySelect.insertBefore(option, noteCategorySelect.lastChild);
-                    }
-                }
+    if (noteTitle && noteContent) {
+        // Determine if the existing note is pinned
+        let isPinned = false;
+        if (currentNoteIndex !== null) {
+            const noteRef = doc(db, 'notes', currentNoteIndex);
+            const noteSnapshot = await getDoc(noteRef);
+            const existingNote = noteSnapshot.data();
+            isPinned = existingNote.pinned; // retain existing pinned state
+        }
 
-                const noteData = {
-                    title: noteTitle,
-                    content: noteContent,
-                    category: noteCategory ? noteCategory : 'Uncategorized',
-                    date: new Date().toISOString(),
-                    pinned: false,
-                    isCheckboxMode: isCheckboxMode
-                };
-
-                if (currentNoteIndex === null) {
-                    await addDoc(collection(db, 'notes'), noteData);
-                    showNotification("Note added!");
-                } else {
-                    await updateDoc(doc(db, 'notes', currentNoteIndex), noteData);
-                    showNotification("Note updated!");
-                }
-                modal.style.display = 'none';
-                updateCategorySelect();
-            } else {
-                showNotification("Please fill in both title and content.");
+        if (noteCategory && noteCategory !== 'new') {
+            const sanitizedCategory = noteCategory.replace(/['"]/g, "");
+            if (!notes.some(note => note.category === sanitizedCategory)) {
+                const option = document.createElement('option');
+                option.value = sanitizedCategory;
+                option.textContent = sanitizedCategory;
+                noteCategorySelect.insertBefore(option, noteCategorySelect.lastChild);
             }
-        });
+        }
+
+        const noteData = {
+            title: noteTitle,
+            content: noteContent,
+            category: noteCategory ? noteCategory : 'Uncategorized',
+            date: new Date().toISOString(),
+            pinned: isPinned, // retain pinned state
+            isCheckboxMode: isCheckboxMode
+        };
+
+        if (currentNoteIndex === null) {
+            await addDoc(collection(db, 'notes'), noteData);
+            showNotification("Note added!");
+        } else {
+            await updateDoc(doc(db, 'notes', currentNoteIndex), noteData);
+            showNotification("Note updated!");
+        }
+        modal.style.display = 'none';
+        updateCategorySelect();
+    } else {
+        showNotification("Please fill in both title and content.");
+    }
+});
 
         cancelNoteBtn.addEventListener('click', () => {
             modal.style.display = 'none';
